@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { InputEnum, Tool } from '../screens/Index';
-import { PencilSquareIcon, CheckIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, CheckIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 interface ToolCardProps {
@@ -41,7 +41,7 @@ const ToolCard = ({ tool, onUpdate, onDelete }: ToolCardProps) => {
       key={tool.id}
       className="h-48 flex flex-col group relative justify-between rounded-md shadow-slate-900 shadow-md p-4 bg-gradient-to-r from-slate-800 to-slate-700"
     >
-      <div>
+      <div className="flex flex-col">
         <input
           className={clsx(inputClasses, 'text-xl bg-transparent mb-2 font-bold', {
             'bg-gray-900': isEdit,
@@ -81,7 +81,7 @@ const ToolCard = ({ tool, onUpdate, onDelete }: ToolCardProps) => {
             <PencilSquareIcon className="h-6 w-6 text-slate-50 cursor-pointer" />
           </button>
           <button className="btn btn-active btn-ghost hidden group-hover:block absolute top-4 right-0 p-0">
-            <XCircleIcon onClick={handleDelete} className="h-6 w-6 text-slate-50 cursor-pointer" />
+            <TrashIcon onClick={handleDelete} className="h-6 w-6 text-slate-50 cursor-pointer" />
           </button>
         </>
       )}

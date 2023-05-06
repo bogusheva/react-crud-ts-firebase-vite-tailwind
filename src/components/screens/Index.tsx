@@ -1,9 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { collection, query, getDocs, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
-import { useAuthState } from '~/components/contexts/UserContext';
-import { SignInButton } from '~/components/domain/auth/SignInButton';
-import { SignOutButton } from '~/components/domain/auth/SignOutButton';
 import { Head } from '~/components/shared/Head';
 import { useFirestore } from '~/lib/firebase';
 import { ToastContainer, toast } from 'react-toastify';
@@ -26,7 +22,6 @@ export enum InputEnum {
 }
 
 function Index() {
-  const { state } = useAuthState();
   const [tools, setTools] = useState<Array<Tool>>([]);
   const firestore = useFirestore();
   const [inputData, setInputData] = useState<Partial<Tool>>({
@@ -38,24 +33,24 @@ function Index() {
 
   useEffect(() => {
     async function fetchData() {
-      //reference to the firestore database service
+      // reference to the firestore database service
       const toolsCollection = collection(firestore, 'tools');
-      //variable that make reference to 'tools' collection using function 'query'
+      // variable that make reference to 'tools' collection using function 'query'
       const toolsQuery = query(toolsCollection);
-      /*A request is made to the Firestore database using the 'getDocs' function, which retrieves data from the collection that matches the toolsQuery query. */
+      /* A request is made to the Firestore database using the 'getDocs' function, which retrieves data from the collection that matches the toolsQuery query. */
       const querySnapshot = await getDocs(toolsQuery);
       const fetchedData: Array<Tool> = [];
       /* A forEach loop is used to iterate over each document in the querySnapshot, and for each document:
           a. A new object is created using the spread operator (...doc.data()) to combine the document data with an id property equal to the document ID.
           b. The new object is cast as a Tool (type definition).
-          c. The new Tool is pushed onto the fetchedData array.*/
+          c. The new Tool is pushed onto the fetchedData array. */
       querySnapshot.forEach((doc) => {
         fetchedData.push({ id: doc.id, ...doc.data() } as Tool);
       });
       setTools(fetchedData);
     }
     fetchData();
-  }, [tools]);
+  }, []);
 
   const handleInputChange = (field: InputEnum, value: string) => {
     setInputData({ ...inputData, [field]: value });
@@ -67,7 +62,7 @@ function Index() {
       .then((docRef) => {
         toast.success('Updated successfully!', {
           position: 'top-right',
-          autoClose: 5000,
+          autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -82,11 +77,12 @@ function Index() {
   };
   const onDeleteTool = (id: string) => {
     const docRef = doc(firestore, 'tools', id);
+    setTools(tools.filter((doc) => doc.id !== id));
     deleteDoc(docRef)
       .then((docRef) => {
         toast.success('Deleted successfully!', {
           position: 'top-right',
-          autoClose: 5000,
+          autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -109,12 +105,11 @@ function Index() {
         description: inputData.description,
         url: inputData.url,
       };
-      //save data to firebase
-      //update state of tools
+      // save data to firebase
       const docRef = await addDoc(toolsCollection, newTool);
       toast.success('Saved the tool successfully!', {
         position: 'top-right',
-        autoClose: 5000,
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -122,14 +117,16 @@ function Index() {
         progress: undefined,
         theme: 'dark',
       });
+      // update state of tools
       setTools([...tools, { id: docRef.id, ...newTool }] as Array<Tool>);
-      //clear form
+      // clear form
       setInputData({
         title: '',
         description: '',
         url: '',
       });
     } catch (error) {
+      console.log(formError);
       setFormError(true);
     }
   };
